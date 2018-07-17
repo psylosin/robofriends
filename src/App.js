@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import CardList from './CardList';
 import SearchBox from './SearchBox';
-import { robots } from './robots';
+import Scroll from './Scroll'
 import './App.css';
 
 // create a state component
@@ -10,9 +10,15 @@ class App extends Component {
     super()
     this.state = {
       // these change in the app
-      robots: robots,
+      robots: [],
       searchfield: ''
     }
+  }
+
+  componentDidMount() {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then(response => response.json())
+      .then(users => this.setState({ robots: users}));
   }
 
   // listener that reports search changes (grabs this from SearchBox)
@@ -27,13 +33,19 @@ class App extends Component {
     const filteredRobots = this.state.robots.filter(robots => {
       return robots.name.toLowerCase().includes(this.state.searchfield.toLowerCase());
     })
-    return (
-      <div className='tc'>
-        <h1 className='f1'>RoboFriends</h1>
-        <SearchBox searchChange={this.onSearchChange}/>
-        <CardList robots={filteredRobots}/>
-      </div>
-    );
+    if (this.state.robots.length === 0) {
+      return <h1>Loading</h1>
+    } else {
+      return (
+        <div className='tc'>
+          <h1 className='f1'>RoboFriends</h1>
+          <SearchBox searchChange={this.onSearchChange}/>
+          <Scroll>
+            <CardList robots={filteredRobots}/>
+          </Scroll>
+        </div>
+      );
+    }
   }
 }
 
